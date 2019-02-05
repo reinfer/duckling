@@ -7,6 +7,7 @@
 
 
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 import Control.Applicative hiding (empty)
 import Control.Arrow ((***))
@@ -19,6 +20,7 @@ import Data.Maybe
 import Data.String
 import Data.Text (Text)
 import Data.Time.LocalTime.TimeZone.Series
+import GHC.Generics
 import Prelude
 import System.Directory
 import System.Environment (lookupEnv)
@@ -74,75 +76,62 @@ targetsHandler = do
 
 
 -- | Parse some text into the given dimensions
-parseHandler :: HashMap Text TimeZoneSeries -> Snap ()
+--
+type TimezoneHashMap = HashMap Text TimeZoneSeries
+
+parseDocument :: Options -> Locale -> TimezoneHashMap -> [Some Dimension] -> ((Text, Integer), Text) -> [Entity]
+parseDocument options thisLocale tzs dims ((timezone, rawIntRef), text) =
+    parse text context options dims
+  where
+    context = Context
+      { referenceTime = refTime
+      , Duckling.Core.locale = thisLocale
+      }
+    refTime = makeReftime tzs timezone $ posixSecondsToUTCTime $ fromInteger rawIntRef / 1000
+
+data ParseRequest = ParseRequest {
+      texts :: [Text]
+    , referenceTimes :: [Integer]
+    , language :: Maybe Text
+    , dimensions  :: [Text]
+    , timezones :: [Text]
+    , locale :: Maybe Text
+    , latent :: Maybe Bool
+    } deriving (Generic, Show)
+
+instance FromJSON ParseRequest
+
+parseHandler :: TimezoneHashMap -> Snap ()
 parseHandler tzs = do
   modifyResponse $ setHeader "Content-Type" "application/json"
-  t <- getPostParam "text"
-  l <- getPostParam "lang"
-  ds <- getPostParam "dims"
-  tz <- getPostParam "tz"
-  loc <- getPostParam "locale"
-  ref <- getPostParam "reftime"
-  latent <- getPostParam "latent"
-
-  case t of
-    Nothing -> do
-      modifyResponse $ setResponseStatus 422 "Bad Input"
-      writeBS "Need a 'text' parameter to parse"
-    Just tx -> do
-      let timezone = parseTimeZone tz
-      now <- liftIO $ currentReftime tzs timezone
+  body <- readRequestBody (8 * 1024 * 1024)
+  case (decode body) of
+    (Nothing) -> do
+      modifyResponse $ setResponseStatus 400 "Bad Request"
+      writeBS "{\"status\": \"error\", \"message\": \"Bad Request.\"}"
+    (Just request) -> do
       let
-        context = Context
-          { referenceTime = maybe now (parseRefTime timezone) ref
-          , locale = maybe (makeLocale (parseLang l) Nothing) parseLocale loc
-          }
-        options = Options {withLatent = parseLatent latent}
+        thisLocale = maybe (makeLocale (parseLang $ language request) Nothing) parseLocale (Main.locale request)
+        options = Options {withLatent = fromMaybe False (Main.latent request)}
+        dims = mapMaybe fromName (dimensions request)
 
-        dimParse = fromMaybe [] $ decode $ LBS.fromStrict $ fromMaybe "" ds
-        dims = mapMaybe parseDimension dimParse
-
-        parsedResult = parse (Text.decodeUtf8 tx) context options dims
+        parsedResult = map
+          (parseDocument options thisLocale tzs dims)
+          (zip (zip (timezones request) (referenceTimes request)) (texts request))
 
       writeLBS $ encode parsedResult
   where
     defaultLang = EN
     defaultLocale = makeLocale defaultLang Nothing
-    defaultTimeZone = "America/Los_Angeles"
-    defaultLatent = False
 
-    parseDimension :: Text -> Maybe (Some Dimension)
-    parseDimension x = fromName x <|> fromCustomName x
-      where
-        fromCustomName :: Text -> Maybe (Some Dimension)
-        fromCustomName name = HashMap.lookup name m
-        m = HashMap.fromList
-          [ -- ("my-dimension", This (CustomDimension MyDimension))
-          ]
-
-    parseTimeZone :: Maybe ByteString -> Text
-    parseTimeZone = maybe defaultTimeZone Text.decodeUtf8
-
-    parseLocale :: ByteString -> Locale
-    parseLocale x = maybe defaultLocale (`makeLocale` mregion) mlang
+    parseLocale :: Text -> Locale
+    parseLocale thisLocale = maybe defaultLocale (`makeLocale` mregion) mlang
       where
         (mlang, mregion) = case chunks of
           [a, b] -> (readMaybe a :: Maybe Lang, readMaybe b :: Maybe Region)
           _      -> (Nothing, Nothing)
-        chunks = map Text.unpack . Text.split (== '_') . Text.toUpper
-          $ Text.decodeUtf8 x
+        chunks = map Text.unpack . Text.split (== '_') . Text.toUpper $ thisLocale
 
-    parseLang :: Maybe ByteString -> Lang
+    parseLang :: Maybe Text -> Lang
     parseLang l = fromMaybe defaultLang $ l >>=
-      readMaybe . Text.unpack . Text.toUpper . Text.decodeUtf8
-
-    parseRefTime :: Text -> ByteString -> DucklingTime
-    parseRefTime timezone refTime = makeReftime tzs timezone utcTime
-      where
-        msec = read $ Text.unpack $ Text.decodeUtf8 refTime
-        utcTime = posixSecondsToUTCTime $ fromInteger msec / 1000
-
-    parseLatent :: Maybe ByteString -> Bool
-    parseLatent x = fromMaybe defaultLatent
-      (readMaybe (Text.unpack $ Text.toTitle $ Text.decodeUtf8 $ fromMaybe empty x)::Maybe Bool)
-
+      readMaybe . Text.unpack . Text.toUpper
