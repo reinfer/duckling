@@ -61,8 +61,13 @@ main = do
     ifTop (writeBS "quack!") <|>
     route
       [ ("targets", method GET targetsHandler)
+      , ("health-private", method GET healthPrivateHandler)
       , ("parse", method POST $ parseHandler tzs)
       ]
+
+-- | Health check
+healthPrivateHandler :: Snap ()
+healthPrivateHandler = writeBS "ok\n"
 
 -- | Return which languages have which dimensions
 targetsHandler :: Snap ()
