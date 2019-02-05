@@ -53,15 +53,16 @@ main :: IO ()
 main = do
   setupLogs
   tzs <- loadTimeZoneSeries "/usr/share/zoneinfo/"
-  p <- lookupEnv "PORT"
-  conf <- commandLineConfig $
-    maybe defaultConfig (`setPort` defaultConfig) (readMaybe =<< p)
-  httpServe conf $
-    ifTop (writeBS "quack!") <|>
+  quickHttpServe $
     route
       [ ("targets", method GET targetsHandler)
+      , ("health-private", method GET healthPrivateHandler)
       , ("parse", method POST $ parseHandler tzs)
       ]
+
+-- | Health check
+healthPrivateHandler :: Snap ()
+healthPrivateHandler = writeBS "ok\n"
 
 -- | Return which languages have which dimensions
 targetsHandler :: Snap ()
