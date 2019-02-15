@@ -156,6 +156,8 @@ allExamples = concat
   , examples (datetime (2013, 2, 12, 0, 0, 0) Day)
              [ "today"
              , "at this time"
+             , "T0"
+             , "T+0"
              ]
   , examples (datetime (2013, 2, 1, 0, 0, 0) Day)
              [ "2/2013"
@@ -169,6 +171,7 @@ allExamples = concat
   , examples (datetime (2013, 2, 13, 0, 0, 0) Day)
              [ "tomorrow"
              , "tomorrows"
+             , "T+1"
              ]
   , examples (datetime (2013, 2, 18, 0, 0, 0) Day)
              [ "monday"
@@ -194,6 +197,7 @@ allExamples = concat
              [ "friday"
              , "fri"
              , "fri."
+             , "T+3"
              ]
   , examples (datetime (2013, 2, 16, 0, 0, 0) Day)
              [ "saturday"

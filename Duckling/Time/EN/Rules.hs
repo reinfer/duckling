@@ -133,7 +133,22 @@ ruleInstants = mkRuleInstants
   , ("today"        , TG.Day   , 0  , "todays?|(at this time)"           )
   , ("tomorrow"     , TG.Day   , 1  , "(tmrw?|tomm?or?rows?)"            )
   , ("yesterday"    , TG.Day   , - 1, "yesterdays?"                      )
+  , ("T0"           , TG.Day   , 0  , "T0"                               )
   ]
+
+ruleNthTradeSettlement :: Rule
+ruleNthTradeSettlement = Rule
+  { name = "T+<time> (implicit days)"
+  , pattern =
+    [ regex "T\\+(\\d)"
+    ]
+  , prod = \tokens -> case tokens of
+      (Token RegexMatch (GroupMatch (match:_)):_) ->
+        case parseInt match of
+          Just ordinal -> tt $ cycleNth TG.Day ordinal
+          _ -> Nothing
+      _ -> Nothing
+  }
 
 ruleNow :: Rule
 ruleNow = Rule
@@ -2299,6 +2314,7 @@ rules =
   , ruleEndOrBeginningOfMonth
   , ruleEndOrBeginningOfYear
   , ruleEndOrBeginningOfWeek
+  , ruleNthTradeSettlement
   , ruleNow
   , ruleSeason
   , ruleEndOfMonth
