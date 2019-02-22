@@ -479,9 +479,25 @@ ruleDOMMonthYear = Rule
       _ -> Nothing
   }
 
+ruleYearMonthDOM :: Rule
+ruleYearMonthDOM = Rule
+  { name = "year <named-month> <day-of-month> (non ordinal)"
+  , pattern =
+    [ regex "(\\d{4})"
+    , Predicate isAMonth
+    , Predicate isDOMInteger
+    ]
+  , prod = \tokens -> case tokens of
+      (Token RegexMatch (GroupMatch (match:_)):Token Time td:token:_) -> do
+        intVal <- parseInt match
+        dom <- intersectDOM td token
+        Token Time <$> intersect dom (year intVal)
+      _ -> Nothing
+  }
+
 ruleDOMOrdinalMonthYear :: Rule
 ruleDOMOrdinalMonthYear = Rule
-  { name = "<day-of-month>(ordinal) <named-month> year"
+  { name = "<day-of-month> (ordinal) <named-month> year"
   , pattern =
     [ Predicate isDOMOrdinal
     , Predicate isAMonth
@@ -2468,6 +2484,7 @@ rules =
   , ruleDOMOfMonth
   , ruleDOMOrdinalMonthYear
   , ruleDOMMonthYear
+  , ruleYearMonthDOM
   , ruleIdesOfMonth
   , ruleTODLatent
   , ruleAtTOD
