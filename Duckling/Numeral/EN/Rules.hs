@@ -131,7 +131,7 @@ rulePowersOfTen :: Rule
 rulePowersOfTen = Rule
   { name = "powers of tens"
   , pattern =
-    [ regex "(hundred|thousand|million|billion)s?"
+    [ regex "(hundred|thousand|mill?ion|bill?ion|trill?ion)s?"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (match:_)):_) -> case Text.toLower match of
@@ -139,6 +139,7 @@ rulePowersOfTen = Rule
         "thousand" -> double 1e3 >>= withGrain 3 >>= withMultipliable
         "million"  -> double 1e6 >>= withGrain 6 >>= withMultipliable
         "billion"  -> double 1e9 >>= withGrain 9 >>= withMultipliable
+        "trillion"  -> double 1e12 >>= withGrain 12 >>= withMultipliable
         _          -> Nothing
       _ -> Nothing
   }
@@ -229,7 +230,7 @@ ruleDecimals :: Rule
 ruleDecimals = Rule
   { name = "decimal number"
   , pattern =
-    [ regex "(\\d*\\.\\d+)"
+    [ regex "\\b(\\d*\\.\\d+)"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (match:_)):_) -> parseDecimal True match
@@ -240,7 +241,7 @@ ruleCommas :: Rule
 ruleCommas = Rule
   { name = "comma-separated numbers"
   , pattern =
-    [ regex "(\\d+(,\\d\\d\\d)+(\\.\\d+)?)"
+    [ regex "\\b(\\d+(,\\d\\d\\d)+(\\.\\d+)?)"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (match:_)):_) ->
@@ -264,7 +265,7 @@ ruleApostrophes :: Rule
 ruleApostrophes = Rule
   { name = "apostrophe-separated numbers"
   , pattern =
-    [ regex "(\\d+('\\d\\d\\d)+(\\.\\d+)?)"
+    [ regex "\\b(\\d+('\\d\\d\\d)+(\\.\\d+)?)"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (match:_)):_) ->
