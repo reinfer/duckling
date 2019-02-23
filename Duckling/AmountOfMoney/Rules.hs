@@ -140,7 +140,7 @@ ruleAmountUnit :: Rule
 ruleAmountUnit = Rule
   { name = "<amount> <unit>"
   , pattern =
-    [ Predicate isPositive
+    [ dimension Numeral
     , Predicate isCurrencyOnly
     ]
   , prod = \tokens -> case tokens of

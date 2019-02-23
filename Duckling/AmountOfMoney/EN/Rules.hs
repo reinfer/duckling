@@ -33,12 +33,47 @@ ruleUnitAmount = Rule
   { name = "<unit> <amount>"
   , pattern =
     [ Predicate isCurrencyOnly
-    , Predicate isPositive
+    , dimension Numeral
     ]
   , prod = \case
       (Token AmountOfMoney AmountOfMoneyData{TAmountOfMoney.currency = c}:
        Token Numeral NumeralData{TNumeral.value = v}:
        _) -> Just . Token AmountOfMoney . withValue v $ currencyOnly c
+      _ -> Nothing
+  }
+
+ruleUnitAmountNegativeParens :: Rule
+ruleUnitAmountNegativeParens = Rule
+  { name = "<unit> (<amount>)"
+  , pattern =
+    [ Predicate isCurrencyOnly
+    , regex "\\("
+    , dimension Numeral
+    , regex "\\)"
+    ]
+  , prod = \case
+      (Token AmountOfMoney AmountOfMoneyData{TAmountOfMoney.currency = c}:
+       _:
+       Token Numeral NumeralData{TNumeral.value = v}:
+       _) -> Just . Token AmountOfMoney . withValue (-v) $ currencyOnly c
+      _ -> Nothing
+  }
+
+ruleAmountUnitNegativeParens :: Rule
+ruleAmountUnitNegativeParens = Rule
+  { name = "(<amount>) <unit>"
+  , pattern =
+    [ regex "\\("
+    , dimension Numeral
+    , regex "\\)"
+     , Predicate isCurrencyOnly
+    ]
+  , prod = \case
+      (_:
+       Token Numeral NumeralData{TNumeral.value = v}:
+       _:
+       Token AmountOfMoney AmountOfMoneyData{TAmountOfMoney.currency = c}:
+       _) -> Just . Token AmountOfMoney . withValue (-v) $ currencyOnly c
       _ -> Nothing
   }
 
@@ -366,6 +401,8 @@ ruleIntervalMin = Rule
 rules :: [Rule]
 rules =
   [ ruleUnitAmount
+  , ruleUnitAmountNegativeParens
+  , ruleAmountUnitNegativeParens
   , ruleACurrency
   , ruleAbsorbA
   , ruleBucks
