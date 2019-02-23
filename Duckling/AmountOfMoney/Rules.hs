@@ -40,7 +40,7 @@ currencies = HashMap.fromList
   , ("byn", BYN)
   , ("cad", CAD)
   , ("¢", Cent)
-  , ("c", Cent)
+  -- , ("c", Cent)  // reinfer change: messes up with lots of things
   , ("chf", CHF)
   , ("cny", CNY)
   , ("czk", CZK)
