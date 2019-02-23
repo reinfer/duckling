@@ -2531,9 +2531,14 @@ rules =
   , ruleIntervalFromDDDDOfMonth
   , ruleIntervalMonthDDDD
   , ruleIntervalDDDDMonth
+<<<<<<< HEAD
   , ruleIntervalDash
   , ruleIntervalSlash
   , ruleIntervalFrom
+=======
+  --, ruleIntervalDash -- reinfer: much slower (https://github.com/facebook/duckling/issues/338)
+  --, ruleIntervalFrom -- reinfer: slower
+>>>>>>> (reinfer) time: remove DOS-ing rules
   , ruleIntervalBetween
   , ruleIntervalTODDash
   , ruleIntervalTODFrom
@@ -2541,7 +2546,7 @@ rules =
   , ruleIntervalTODBetween
   , ruleIntervalBy
   , ruleIntervalByTheEndOf
-  , ruleIntervalUntilTime
+  , ruleIntervalUntilTime -- reinfer: a bit slower
   , ruleIntervalAfterFromSinceTime
   , ruleCycleTheAfterBeforeTime
   , ruleCycleThisLastNext
