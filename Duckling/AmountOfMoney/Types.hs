@@ -63,6 +63,7 @@ data Currency
   | LBP
   | MAD
   | MNT
+  | MXN
   | MYR
   | NOK
   | NZD

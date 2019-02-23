@@ -87,6 +87,7 @@ currencies = HashMap.fromList
   , ("lbp", LBP)
   , ("mad", MAD)
   , ("mnt", MNT)
+  , ("mxn", MXN)
   , ("myr", MYR)
   , ("rm", MYR)
   , ("₮", MNT)
