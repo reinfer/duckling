@@ -248,6 +248,30 @@ ruleCommas = Rule
       _ -> Nothing
   }
 
+ruleSpaces :: Rule
+ruleSpaces = Rule
+  { name = "space-separated numbers"
+  , pattern =
+    [ regex "\\b(\\d+( \\d\\d\\d)+(\\.\\d+)?)"
+    ]
+  , prod = \tokens -> case tokens of
+      (Token RegexMatch (GroupMatch (match:_)):_) ->
+        parseDouble (Text.replace " " Text.empty match) >>= double
+      _ -> Nothing
+  }
+
+ruleApostrophes :: Rule
+ruleApostrophes = Rule
+  { name = "apostrophe-separated numbers"
+  , pattern =
+    [ regex "(\\d+('\\d\\d\\d)+(\\.\\d+)?)"
+    ]
+  , prod = \tokens -> case tokens of
+      (Token RegexMatch (GroupMatch (match:_)):_) ->
+        parseDouble (Text.replace "'" Text.empty match) >>= double
+      _ -> Nothing
+  }
+
 ruleSuffixes :: Rule
 ruleSuffixes = Rule
   { name = "suffixes (K,M,G))"
@@ -332,6 +356,8 @@ rules =
   , ruleLeadingDotSpelledOut
   , ruleDecimals
   , ruleCommas
+  , ruleSpaces
+  , ruleApostrophes
   , ruleSuffixes
   , ruleNegative
   , ruleSum
