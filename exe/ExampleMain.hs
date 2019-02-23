@@ -14,6 +14,7 @@ import Control.Monad (unless)
 import Control.Monad.IO.Class
 import Data.Aeson
 import Data.ByteString (ByteString, empty)
+import qualified Data.ByteString as BS
 import Data.HashMap.Strict (HashMap)
 import Data.Maybe
 import Data.String
@@ -60,15 +61,24 @@ main = do
       , ("parse", method POST $ parseHandler tzs)
       ]
 
+-- | Write with context length.
+writeContent :: ByteString -> Snap ()
+writeContent byteString = do
+  modifyResponse $ setContentLength (fromIntegral $ BS.length byteString)
+  writeBS byteString
+
+writeLazyContent :: LBS.ByteString -> Snap ()
+writeLazyContent lazy = writeContent $ LBS.toStrict lazy
+
 -- | Health check
 healthPrivateHandler :: Snap ()
-healthPrivateHandler = writeBS "ok\n"
+healthPrivateHandler = writeContent "ok\n"
 
 -- | Return which languages have which dimensions
 targetsHandler :: Snap ()
 targetsHandler = do
   modifyResponse $ setHeader "Content-Type" "application/json"
-  writeLBS $ encode $
+  writeLazyContent $ encode $
     HashMap.fromList . map dimText $ HashMap.toList supportedDimensions
   where
     dimText :: (Lang, [Some Dimension]) -> (Text, [Text])
@@ -108,7 +118,7 @@ parseHandler tzs = do
   case (decode body) of
     (Nothing) -> do
       modifyResponse $ setResponseStatus 400 "Bad Request"
-      writeBS "{\"status\": \"error\", \"message\": \"Bad Request.\"}"
+      writeContent "{\"status\": \"error\", \"message\": \"Bad Request.\"}"
     (Just request) -> do
       let
         thisLocale = maybe (makeLocale (parseLang $ language request) Nothing) parseLocale (Main.locale request)
@@ -119,7 +129,7 @@ parseHandler tzs = do
           (parseDocument options thisLocale tzs dims)
           (zip (zip (timezones request) (referenceTimes request)) (texts request))
 
-      writeLBS $ encode parsedResult
+      writeLazyContent $ encode parsedResult
   where
     defaultLang = EN
     defaultLocale = makeLocale defaultLang Nothing
