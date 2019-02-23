@@ -17,6 +17,7 @@ import Data.Aeson
 import Data.ByteString (ByteString, empty)
 import qualified Data.ByteString as BS
 import Data.HashMap.Strict (HashMap)
+import Data.HashSet (HashSet)
 import Data.Maybe
 import Data.String
 import Data.Text (Text)
@@ -28,6 +29,7 @@ import TextShow
 import Text.Read (readMaybe)
 import qualified Data.ByteString.Lazy as LBS
 import qualified Data.HashMap.Strict as HashMap
+import qualified Data.HashSet as HashSet
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 
@@ -89,9 +91,9 @@ targetsHandler = do
 --
 type TimezoneHashMap = HashMap Text TimeZoneSeries
 
-parseDocument :: Options -> Locale -> TimezoneHashMap -> [Some Dimension] -> ((Text, Integer), Text) -> [Entity]
-parseDocument options thisLocale tzs dims ((timezone, rawIntRef), text) =
-    parse text context options dims
+parseDocument :: Options -> Locale -> TimezoneHashMap -> [Some Dimension] -> HashSet Text -> ((Text, Integer), Text) -> [Entity]
+parseDocument options thisLocale tzs parseDimensionList filterDimensionSet ((timezone, rawIntRef), text) =
+    filter keepEntity $ parse text context options parseDimensionList
   where
     context = Context
       { referenceTime = refTime
@@ -99,11 +101,14 @@ parseDocument options thisLocale tzs dims ((timezone, rawIntRef), text) =
       }
     refTime = makeReftime tzs timezone $ posixSecondsToUTCTime $ fromInteger rawIntRef / 1000
 
+    keepEntity entity = HashSet.member (dim entity) filterDimensionSet
+
 data ParseRequest = ParseRequest {
       texts :: [Text]
     , referenceTimes :: [Integer]
     , language :: Maybe Text
-    , dimensions  :: [Text]
+    , parseDimensions  :: [Text]
+    , filterDimensions  :: [Text]
     , timezones :: [Text]
     , locale :: Maybe Text
     , latent :: Maybe Bool
@@ -123,10 +128,11 @@ parseHandler tzs = do
       let
         thisLocale = maybe (makeLocale (parseLang $ language request) Nothing) parseLocale (Main.locale request)
         options = Options {withLatent = fromMaybe False (Main.latent request)}
-        dims = mapMaybe fromName (dimensions request)
+        parseDimensionList = mapMaybe fromName (parseDimensions request)
+        filterDimensionSet = HashSet.fromList (filterDimensions request)
 
         parsedResult = map
-          (parseDocument options thisLocale tzs dims)
+          (parseDocument options thisLocale tzs parseDimensionList filterDimensionSet)
           (zip (zip (timezones request) (referenceTimes request)) (texts request))
 
       writeLazyContent $ encode parsedResult
