@@ -483,7 +483,7 @@ ruleYearMonthDOM :: Rule
 ruleYearMonthDOM = Rule
   { name = "year <named-month> <day-of-month> (non ordinal)"
   , pattern =
-    [ regex "(\\d{4})"
+    [ regex "\b(\\d{4})"
     , Predicate isAMonth
     , Predicate isDOMInteger
     ]
@@ -542,7 +542,7 @@ ruleAtTOD :: Rule
 ruleAtTOD = Rule
   { name = "at <time-of-day>"
   , pattern =
-    [ regex "at|@"
+    [ regex "\b(at|@)"
     , Predicate isATimeOfDay
     ]
   , prod = \tokens -> case tokens of
