@@ -241,7 +241,7 @@ ruleCommas :: Rule
 ruleCommas = Rule
   { name = "comma-separated numbers"
   , pattern =
-    [ regex "\\b(\\d+(,\\d\\d\\d)+(\\.\\d+)?)"
+    [ regex "(\\d+(,\\d\\d\\d)+(\\.\\d+)?)"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (match:_)):_) ->
@@ -265,7 +265,7 @@ ruleApostrophes :: Rule
 ruleApostrophes = Rule
   { name = "apostrophe-separated numbers"
   , pattern =
-    [ regex "\\b(\\d+('\\d\\d\\d)+(\\.\\d+)?)"
+    [ regex "(\\d+('\\d\\d\\d)+(\\.\\d+)?)"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (match:_)):_) ->
