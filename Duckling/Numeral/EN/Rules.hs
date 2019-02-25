@@ -131,15 +131,19 @@ rulePowersOfTen :: Rule
 rulePowersOfTen = Rule
   { name = "powers of tens"
   , pattern =
-    [ regex "(hundred|thousand|mill?ion|bill?ion|trill?ion)s?"
+    [ regex "(hundred|th?ousand|mill?ion|bill?ion|trill?ion)s?"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (match:_)):_) -> case Text.toLower match of
         "hundred"  -> double 1e2 >>= withGrain 2 >>= withMultipliable
-        "thousand" -> double 1e3 >>= withGrain 3 >>= withMultipliable
-        "million"  -> double 1e6 >>= withGrain 6 >>= withMultipliable
-        "billion"  -> double 1e9 >>= withGrain 9 >>= withMultipliable
-        "trillion"  -> double 1e12 >>= withGrain 12 >>= withMultipliable
+        "tousand"-> double 1e3 >>= withGrain 3 >>= withMultipliable
+        "thousand"-> double 1e3 >>= withGrain 3 >>= withMultipliable
+        "milion" -> double 1e6 >>= withGrain 6 >>= withMultipliable
+        "million" -> double 1e6 >>= withGrain 6 >>= withMultipliable
+        "bilion" -> double 1e9 >>= withGrain 9 >>= withMultipliable
+        "billion" -> double 1e9 >>= withGrain 9 >>= withMultipliable
+        "trillion" -> double 1e12 >>= withGrain 12 >>= withMultipliable
+        "trilion" -> double 1e12 >>= withGrain 12 >>= withMultipliable
         _          -> Nothing
       _ -> Nothing
   }
@@ -230,7 +234,7 @@ ruleDecimals :: Rule
 ruleDecimals = Rule
   { name = "decimal number"
   , pattern =
-    [ regex "\\b(\\d*\\.\\d+)"
+    [ regex "(\\d*\\.\\d+)"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (match:_)):_) -> parseDecimal True match
@@ -253,7 +257,7 @@ ruleSpaces :: Rule
 ruleSpaces = Rule
   { name = "space-separated numbers"
   , pattern =
-    [ regex "\\b(\\d+( \\d\\d\\d)+(\\.\\d+)?)"
+    [ regex "\\b(\\d+( \\d\\d\\d)+(\\.\\d+)?)\\b"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (match:_)):_) ->
@@ -278,14 +282,21 @@ ruleSuffixes = Rule
   { name = "suffixes (K,M,G))"
   , pattern =
     [ dimension Numeral
-    , regex "(k|m|g)(?=[\\W$€¢£]|$)"
+    , regex "(k|m|bar|mio|g|b|bln|bn|t|tln|tn)(?=[\\W$€¢£]|$)"
     ]
   , prod = \tokens -> case tokens of
       (Token Numeral nd : Token RegexMatch (GroupMatch (match : _)):_) -> do
         x <- case Text.toLower match of
           "k" -> Just 1e3
           "m" -> Just 1e6
+          "mio" -> Just 1e6
+          "bar" -> Just 1e6
           "g" -> Just 1e9
+          "b" -> Just 1e9
+          "bln" -> Just 1e9
+          "t" -> Just 1e12
+          "tn" -> Just 1e12
+          "tln" -> Just 1e12
           _ -> Nothing
         double $ TNumeral.value nd * x
       _ -> Nothing
