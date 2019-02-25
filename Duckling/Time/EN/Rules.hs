@@ -456,11 +456,11 @@ ruleYearMonthDOM = Rule
       _ -> Nothing
   }
 
-ruleDOMOrdinalMonthYear :: Rule
-ruleDOMOrdinalMonthYear = Rule
+ruleDOMMonthYear :: Rule
+ruleDOMMonthYear = Rule
   { name = "<day-of-month> (ordinal) <named-month> year"
   , pattern =
-    [ Predicate isDOMOrdinal
+    [ Predicate isDOMValue
     , Predicate isAMonth
     , regex "(\\d{2,4})"
     ]
@@ -2234,7 +2234,7 @@ rules =
   , ruleMonthDOMNumeral
   , ruleDOMMonth
   , ruleDOMOfMonth
-  , ruleDOMOrdinalMonthYear
+  , ruleDOMMonthYear
   , ruleYearMonthDOM
   , ruleIdesOfMonth
   , ruleTODLatent
