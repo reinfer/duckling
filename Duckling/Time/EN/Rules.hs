@@ -542,7 +542,7 @@ ruleAtTOD :: Rule
 ruleAtTOD = Rule
   { name = "at <time-of-day>"
   , pattern =
-    [ regex "\b(at|@)"
+    [ regex "\\bat|@"
     , Predicate isATimeOfDay
     ]
   , prod = \tokens -> case tokens of
