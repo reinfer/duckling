@@ -587,7 +587,7 @@ rulePODatTOD = Rule
 ruleHHMM :: Rule
 ruleHHMM = Rule
   { name = "hh:mm"
-  , pattern = [regex "((?:[01]?\\d)|(?:2[0-3]))[:.]([0-5]\\d)"]
+  , pattern = [regex "((?:[01]?\\d)|(?:2[0-3])):([0-5]\\d)"]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (hh:mm:_)):_) -> do
         h <- parseInt hh
@@ -627,7 +627,7 @@ ruleHHMMLatent = Rule
 ruleHHMMSS :: Rule
 ruleHHMMSS = Rule
   { name = "hh:mm:ss"
-  , pattern = [regex "((?:[01]?\\d)|(?:2[0-3]))[:.]([0-5]\\d)[:.]([0-5]\\d)"]
+  , pattern = [regex "((?:[01]?\\d)|(?:2[0-3])):([0-5]\\d):([0-5]\\d)"]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (hh:mm:ss:_)):_) -> do
         h <- parseInt hh
@@ -846,7 +846,7 @@ ruleMMYYYY :: Rule
 ruleMMYYYY = Rule
   { name = "mm/yyyy"
   , pattern =
-    [ regex "(0?[1-9]|1[0-2])[/-](\\d{4})"
+    [ regex "(0?[1-9]|1[0-2])[./-](\\d{4})"
     ]
   , prod = \case
       (Token RegexMatch (GroupMatch (mm:yy:_)):_) -> do
@@ -1323,7 +1323,7 @@ ruleIntervalTODAMPM :: Rule
 ruleIntervalTODAMPM = Rule
  { name = "hh(:mm) - <time-of-day> am|pm"
  , pattern =
-   [ regex "(?:from )?((?:[01]?\\d)|(?:2[0-3]))([:.]([0-5]\\d))?"
+   [ regex "(?:from )?((?:[01]?\\d)|(?:2[0-3]))(:([0-5]\\d))?"
    , regex "\\-|:|to|th?ru|through|(un)?til(l)?"
    , Predicate isATimeOfDay
    , regex "(in the )?([ap])(\\s|\\.)?m?\\.?"
