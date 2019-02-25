@@ -34,6 +34,9 @@ currencies :: HashMap Text Currency
 currencies = HashMap.fromList
   [ ("aed", AED)
   , ("aud", AUD)
+  , ("aud $", AUD)
+  , ("aud$", AUD)
+  , ("au$", AUD)
   , ("bgn", BGN)
   , ("brl", BRL)
   , ("byn", BYN)
@@ -113,11 +116,16 @@ currencies = HashMap.fromList
   , ("sar", SAR)
   , ("sek", SEK)
   , ("sgd", SGD)
+  , ("sgd$", SGD)
+  , ("sg$", SGD)
+  , ("sgd $", SGD)
   , ("shekel", ILS)
   , ("shekels", ILS)
   , ("thb", THB)
   , ("ttd", TTD)
   , ("usd", USD)
+  , ("usd$", USD)
+  , ("usd $", USD)
   , ("us$", USD)
   , ("vnd", VND)
   , ("zar", ZAR)
@@ -127,7 +135,7 @@ ruleCurrencies :: Rule
 ruleCurrencies = Rule
   { name = "currencies"
   , pattern =
-    [ regex "(aed|aud|bgn|brl|byn|¢|cad|chf|cny|c|\\$|dinars?|dkk|dollars?|egp|(e|€)uro?s?|€|gbp|gel|\x20BE|hrk|idr|ils|₪|inr|iqd|jmd|jod|¥|jpy|lari|krw|kwd|lbp|mad|₮|mnt|tugriks?|myr|rm|nis|nok|nzd|£|pkr|pln|pta?s?|qar|₽|rs\\.?|riy?als?|ron|rub|rupees?|sar|sek|sgb|shekels?|thb|ttd|us(d|\\$)|vnd|yen|yuan|zar)"
+    [ regex "(aed|au[d$](?: ?\\$)?|bgn|brl|byn|¢|cad|chf|cny|\\$|dinars?|dkk|dollars?|egp|(e|€)uro?s?|€|gbp|gel|\x20BE|hrk|idr|ils|₪|inr|iqd|jmd|jod|¥|jpy|lari|krw|kwd|lbp|mad|₮|mnt|tugriks?|myr|rm|nis|nok|nzd|£|pkr|pln|pta?s?|qar|₽|rs\\.?|riy?als?|ron|rub|rupees?|sar|sek|sg[d$](?: ?\\$)?|shekels?|thb|ttd|us[d$](?: ?\\$)?|vnd|yen|yuan|zar)"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (match:_)):_) -> do
