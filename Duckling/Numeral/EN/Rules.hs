@@ -255,6 +255,18 @@ ruleCommas = Rule
       _ -> Nothing
   }
 
+ruleDotsAndComma :: Rule
+ruleDotsAndComma = Rule
+  { name = "dot-separated numbers with comma decimal"
+  , pattern =
+    [ regex "(\\d+(\\.\\d\\d\\d)?,\\d{2}|\\d+(\\.\\d\\d\\d){2,}(\\,\\d{2})?)(?=[^\\d.]|$)"
+    ]
+  , prod = \tokens -> case tokens of
+      (Token RegexMatch (GroupMatch (match:_)):_) ->
+        parseDouble (Text.replace "," "." (Text.replace "." Text.empty match)) >>= double
+      _ -> Nothing
+  }
+
 ruleSpaces :: Rule
 ruleSpaces = Rule
   { name = "space-separated numbers"
@@ -371,6 +383,7 @@ rules =
   , ruleLeadingDotSpelledOut
   , ruleDecimals
   , ruleCommas
+  , ruleDotsAndComma
   , ruleSpaces
   , ruleApostrophes
   , ruleSuffixes
