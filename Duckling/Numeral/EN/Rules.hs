@@ -284,13 +284,14 @@ ruleSuffixes = Rule
   { name = "suffixes (K,M,G))"
   , pattern =
     [ dimension Numeral
-    , regex "(k|m|bar|mio|g|b|bln|bn|t|tln|tn)(?=[\\W$€¢£]|$)"
+    , regex "(k|m|mln|bar|mio|g|b|bln|bn|t|tln|tn)(?=[\\W$€¢£]|$)"
     ]
   , prod = \tokens -> case tokens of
       (Token Numeral nd : Token RegexMatch (GroupMatch (match : _)):_) -> do
         x <- case Text.toLower match of
           "k" -> Just 1e3
           "m" -> Just 1e6
+          "mln" -> Just 1e6
           "mio" -> Just 1e6
           "bar" -> Just 1e6
           "g" -> Just 1e9
