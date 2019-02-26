@@ -23,8 +23,8 @@ module Duckling.Time.Helpers
   , inTimezone, longWEBefore, minute, minutesAfter, minutesBefore, mkLatent
   , month, monthDay, notLatent, now, nthDOWOfMonth, partOfDay, predLastOf
   , predNth, predNthAfter, predNthClosest, season, second, timeOfDayAMPM
-  , weekday, weekend, withDirection, year, yearMonthDay, tt, durationIntervalAgo
-  , inDurationInterval, intersectWithReplacement, yearADBC
+  , weekday, weekend, withDirection, year, yearMonth, yearMonthDay, tt
+  , durationIntervalAgo, inDurationInterval, intersectWithReplacement, yearADBC
     -- Other
   , getIntValue, timeComputed
   -- Rule constructors
@@ -428,6 +428,9 @@ yearADBC n =
 
 yearMonthDay :: Int -> Int -> Int -> TimeData
 yearMonthDay y m d = intersect' (intersect' (year y, month m), dayOfMonth d)
+
+yearMonth :: Int -> Int -> TimeData
+yearMonth y m = intersect' (year y, month m)
 
 monthDay :: Int -> Int -> TimeData
 monthDay m d = intersect' (month m, dayOfMonth d)
