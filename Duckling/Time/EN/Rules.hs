@@ -499,9 +499,43 @@ ruleYearMonthDOMColons :: Rule
 ruleYearMonthDOMColons = Rule
   { name = "year <named-month> <day-of-month> (non ordinal)"
   , pattern =
-    [ regex "\\b(\\d{4})[:/.]"
+    [ regex "\\b(\\d{4}):"
     , Predicate isAMonth
-    , regex "[:/.]"
+    , regex ":"
+    , Predicate isDOMInteger
+    ]
+  , prod = \tokens -> case tokens of
+      (Token RegexMatch (GroupMatch (match:_)):Token Time td:_:token:_) -> do
+        intVal <- parseInt match
+        dom <- intersectDOM td token
+        Token Time <$> intersect dom (year intVal)
+      _ -> Nothing
+  }
+
+ruleYearMonthDOMSlashes :: Rule
+ruleYearMonthDOMSlashes = Rule
+  { name = "year <named-month> <day-of-month> (non ordinal)"
+  , pattern =
+    [ regex "\\b(\\d{4})/"
+    , Predicate isAMonth
+    , regex "/"
+    , Predicate isDOMInteger
+    ]
+  , prod = \tokens -> case tokens of
+      (Token RegexMatch (GroupMatch (match:_)):Token Time td:_:token:_) -> do
+        intVal <- parseInt match
+        dom <- intersectDOM td token
+        Token Time <$> intersect dom (year intVal)
+      _ -> Nothing
+  }
+
+ruleYearMonthDOMDots :: Rule
+ruleYearMonthDOMDots = Rule
+  { name = "year <named-month> <day-of-month> (non ordinal)"
+  , pattern =
+    [ regex "\\b(\\d{4})\\."
+    , Predicate isAMonth
+    , regex "\\.?"
     , Predicate isDOMInteger
     ]
   , prod = \tokens -> case tokens of
@@ -533,9 +567,43 @@ ruleDOMMonthYearColons = Rule
   { name = "<day-of-month> (ordinal) <named-month> year"
   , pattern =
     [ Predicate isDOMValue
-    , regex "[:/.]"
+    , regex ":"
     , Predicate isAMonth
-    , regex "[:/.](\\d{2,4})"
+    , regex ":(\\d{2,4})"
+    ]
+  , prod = \tokens -> case tokens of
+      (token:_:Token Time td:Token RegexMatch (GroupMatch (match:_)):_) -> do
+        intVal <- parseInt match
+        dom <- intersectDOM td token
+        Token Time <$> intersect dom (year intVal)
+      _ -> Nothing
+  }
+
+ruleDOMMonthYearSlashes :: Rule
+ruleDOMMonthYearSlashes = Rule
+  { name = "<day-of-month> (ordinal) <named-month> year"
+  , pattern =
+    [ Predicate isDOMValue
+    , regex "/"
+    , Predicate isAMonth
+    , regex "/(\\d{2,4})"
+    ]
+  , prod = \tokens -> case tokens of
+      (token:_:Token Time td:Token RegexMatch (GroupMatch (match:_)):_) -> do
+        intVal <- parseInt match
+        dom <- intersectDOM td token
+        Token Time <$> intersect dom (year intVal)
+      _ -> Nothing
+  }
+
+ruleDOMMonthYearDots :: Rule
+ruleDOMMonthYearDots = Rule
+  { name = "<day-of-month> (ordinal) <named-month> year"
+  , pattern =
+    [ Predicate isDOMValue
+    , regex "\\."
+    , Predicate isAMonth
+    , regex "\\.(\\d{2,4})"
     ]
   , prod = \tokens -> case tokens of
       (token:_:Token Time td:Token RegexMatch (GroupMatch (match:_)):_) -> do
@@ -2520,8 +2588,12 @@ rules =
   , ruleDOMOrdinalMonthYear
   , ruleDOMMonthYear
   , ruleDOMMonthYearColons
+  , ruleDOMMonthYearSlashes
+  , ruleDOMMonthYearDots
   , ruleYearMonthDOM
   , ruleYearMonthDOMColons
+  , ruleYearMonthDOMSlashes
+  , ruleYearMonthDOMDots
   , ruleIdesOfMonth
   , ruleTODLatent
   --, ruleAtTOD -- (reinfer) at 10/31/2017 12:00AM only matches `at 10`
@@ -2563,23 +2635,23 @@ rules =
   , ruleTODPrecision
   , ruleTODPOD
   , rulePrecisionTOD
-  , ruleIntervalFromMonthDDDD
-  , ruleIntervalFromDDDDMonth
-  , ruleIntervalFromDDDDOfMonth
-  , ruleIntervalMonthDDDD
-  , ruleIntervalDDDDMonth
+  --, ruleIntervalFromMonthDDDD
+  --, ruleIntervalFromDDDDMonth
+  --, ruleIntervalFromDDDDOfMonth
+  --, ruleIntervalMonthDDDD
+  --, ruleIntervalDDDDMonth
   --, ruleIntervalDash -- reinfer: much slower (https://github.com/facebook/duckling/issues/338)
   --, ruleIntervalSlash
   --, ruleIntervalFrom -- reinfer: slower
-  , ruleIntervalBetween
-  , ruleIntervalTODDash
-  , ruleIntervalTODFrom
-  , ruleIntervalTODAMPM
-  , ruleIntervalTODBetween
-  , ruleIntervalBy
-  , ruleIntervalByTheEndOf
-  , ruleIntervalUntilTime -- reinfer: a bit slower
-  , ruleIntervalAfterFromSinceTime
+  --, ruleIntervalBetween
+  --, ruleIntervalTODDash
+  --, ruleIntervalTODFrom
+  --, ruleIntervalTODAMPM
+  --, ruleIntervalTODBetween
+  --, ruleIntervalBy
+  --, ruleIntervalByTheEndOf
+  --, ruleIntervalUntilTime -- reinfer: a bit slower
+  --, ruleIntervalAfterFromSinceTime
   , ruleCycleTheAfterBeforeTime
   , ruleCycleThisLastNext
   , ruleDOMOfTimeMonth
@@ -2602,13 +2674,13 @@ rules =
   , ruleDayInDuration
   , ruleInDurationAtTime
   , ruleDurationAfterBeforeTime
-  , ruleIntervalForDurationFrom
-  , ruleIntervalFromTimeForDuration
-  , ruleIntervalTimeForDuration
+  --, ruleIntervalForDurationFrom
+  --, ruleIntervalFromTimeForDuration
+  --, ruleIntervalTimeForDuration
   , ruleInNumeral
   , ruleTimezone
   , ruleTimezoneBracket
-  , ruleIntervalDashTimezone
+  --, ruleIntervalDashTimezone
   , rulePartOfMonth
   , ruleEndOrBeginningOfMonth
   , ruleEndOrBeginningOfYear

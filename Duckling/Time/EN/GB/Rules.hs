@@ -29,7 +29,7 @@ ruleDDMM :: Rule
 ruleDDMM = Rule
   { name = "dd/mm"
   , pattern =
-    [ regex "(3[01]|[12]\\d|0?[1-9])\\s?[./-]\\s?(1[0-2]|0?[1-9])"
+    [ regex "\\b(3[01]|[12]\\d|0?[1-9])\\s?[/-]\\s?(1[0-2]|0?[1-9])\\b"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (dd:mm:_)):_) -> do
