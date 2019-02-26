@@ -43,6 +43,22 @@ ruleUnitAmount = Rule
       _ -> Nothing
   }
 
+ruleUnitCashAmount :: Rule
+ruleUnitCashAmount = Rule
+  { name = "<unit> cash <amount>"
+  , pattern =
+    [ Predicate isCurrencyOnly
+    , regex "cash"
+    , dimension Numeral
+    ]
+  , prod = \case
+      (Token AmountOfMoney AmountOfMoneyData{TAmountOfMoney.currency = c}:
+       _:
+       Token Numeral NumeralData{TNumeral.value = v}:
+       _) -> Just . Token AmountOfMoney . withValue v $ currencyOnly c
+      _ -> Nothing
+  }
+
 ruleUnitAmountNegativeParens :: Rule
 ruleUnitAmountNegativeParens = Rule
   { name = "<unit> (<amount>)"
@@ -54,6 +70,25 @@ ruleUnitAmountNegativeParens = Rule
     ]
   , prod = \case
       (Token AmountOfMoney AmountOfMoneyData{TAmountOfMoney.currency = c}:
+       _:
+       Token Numeral NumeralData{TNumeral.value = v}:
+       _) -> Just . Token AmountOfMoney . withValue (-v) $ currencyOnly c
+      _ -> Nothing
+  }
+
+ruleUnitCashAmountNegativeParens :: Rule
+ruleUnitCashAmountNegativeParens = Rule
+  { name = "<unit> cash (<amount>)"
+  , pattern =
+    [ Predicate isCurrencyOnly
+    , regex "cash"
+    , regex "\\("
+    , dimension Numeral
+    , regex "\\)"
+    ]
+  , prod = \case
+      (Token AmountOfMoney AmountOfMoneyData{TAmountOfMoney.currency = c}:
+       _:
        _:
        Token Numeral NumeralData{TNumeral.value = v}:
        _) -> Just . Token AmountOfMoney . withValue (-v) $ currencyOnly c
@@ -362,13 +397,15 @@ rules :: [Rule]
 rules =
   [ ruleUnitAmount
   , ruleUnitAmountNegativeParens
+  , ruleUnitCashAmount
+  , ruleUnitCashAmountNegativeParens
   , ruleAmountUnitNegativeParens
-  , ruleACurrency
+  -- , ruleACurrency # (reinfer) messes shit up with e.g. a US$10m
   , ruleBucks
   , ruleCent
   , ruleDinars
   , ruleDirham
-  , ruleIntersect
+  --, ruleIntersect # (reinfer) messes with 400,00 20 19/11/2018
   , ruleIntersectAndNumeral
   , ruleIntersectAndXCents
   , ruleIntersectXCents
