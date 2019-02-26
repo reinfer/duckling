@@ -90,7 +90,7 @@ ruleYYYYMMDot :: Rule
 ruleYYYYMMDot = Rule
   { name = "yyyy.mm"
   , pattern =
-    [ regex "\\b(\\d{4})\\.(1[0-2]|0?[1-9])\\b"
+    [ regex "\\b(19[7-9]\\d|20\\d\\d)\\.(1[0-2]|0?[1-9])\\b"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (yy:mm:_)):_) -> do
