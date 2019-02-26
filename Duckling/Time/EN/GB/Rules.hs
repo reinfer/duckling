@@ -69,12 +69,12 @@ ruleDDMMYYYY = Rule
       _ -> Nothing
   }
 
--- Clashes with HHMMSS, hence only 4-digit years
+-- Clashes with HHMMSS, hence only 4-digit years ((reinfer) doesn't anymore because we disabled times.)
 ruleDDMMYYYYDot :: Rule
 ruleDDMMYYYYDot = Rule
   { name = "dd.mm.yyyy"
   , pattern =
-    [ regex "(3[01]|[12]\\d|0?[1-9])\\.(1[0-2]|0?[1-9])\\.(\\d{4})"
+    [ regex "(3[01]|[12]\\d|0?[1-9])\\.(1[0-2]|0?[1-9])\\.(\\d{2,4})"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (dd:mm:yy:_)):_) -> do
@@ -82,6 +82,20 @@ ruleDDMMYYYYDot = Rule
         d <- parseInt dd
         m <- parseInt mm
         tt $ yearMonthDay y m d
+      _ -> Nothing
+  }
+
+ruleYYYYMMDot :: Rule
+ruleYYYYMMDot = Rule
+  { name = "yyyy.mm"
+  , pattern =
+    [ regex "\\b(\\d{4})\\.(1[0-2]|0?[1-9])\\b"
+    ]
+  , prod = \tokens -> case tokens of
+      (Token RegexMatch (GroupMatch (yy:mm:_)):_) -> do
+        y <- parseInt yy
+        m <- parseInt mm
+        tt $ yearMonth y m
       _ -> Nothing
   }
 
@@ -120,6 +134,7 @@ rules =
   [ ruleDDMM
   , ruleDDMMYYYY
   , ruleMMDDYYYY
+  , ruleYYYYMMDot
   , ruleDDMMYYYYDot
   ]
   ++ ruleComputedHolidays

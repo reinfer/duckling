@@ -483,12 +483,29 @@ ruleYearMonthDOM :: Rule
 ruleYearMonthDOM = Rule
   { name = "year <named-month> <day-of-month> (non ordinal)"
   , pattern =
-    [ regex "\b(\\d{4})"
+    [ regex "\\b(\\d{4})"
     , Predicate isAMonth
     , Predicate isDOMInteger
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (match:_)):Token Time td:token:_) -> do
+        intVal <- parseInt match
+        dom <- intersectDOM td token
+        Token Time <$> intersect dom (year intVal)
+      _ -> Nothing
+  }
+
+ruleYearMonthDOMColons :: Rule
+ruleYearMonthDOMColons = Rule
+  { name = "year <named-month> <day-of-month> (non ordinal)"
+  , pattern =
+    [ regex "\\b(\\d{4}):"
+    , Predicate isAMonth
+    , regex ":"
+    , Predicate isDOMInteger
+    ]
+  , prod = \tokens -> case tokens of
+      (Token RegexMatch (GroupMatch (match:_)):Token Time td:_:token:_) -> do
         intVal <- parseInt match
         dom <- intersectDOM td token
         Token Time <$> intersect dom (year intVal)
@@ -505,6 +522,23 @@ ruleDOMMonthYear = Rule
     ]
   , prod = \tokens -> case tokens of
       (token:Token Time td:Token RegexMatch (GroupMatch (match:_)):_) -> do
+        intVal <- parseInt match
+        dom <- intersectDOM td token
+        Token Time <$> intersect dom (year intVal)
+      _ -> Nothing
+  }
+
+ruleDOMMonthYearColons :: Rule
+ruleDOMMonthYearColons = Rule
+  { name = "<day-of-month> (ordinal) <named-month> year"
+  , pattern =
+    [ Predicate isDOMValue
+    , regex ":"
+    , Predicate isAMonth
+    , regex ":(\\d{2,4})"
+    ]
+  , prod = \tokens -> case tokens of
+      (token:_:Token Time td:Token RegexMatch (GroupMatch (match:_)):_) -> do
         intVal <- parseInt match
         dom <- intersectDOM td token
         Token Time <$> intersect dom (year intVal)
@@ -1421,18 +1455,19 @@ ruleDaysOfWeek = mkRuleDaysOfWeek
 ruleMonths :: [Rule]
 ruleMonths = mkRuleMonthsWithLatent
   [ ( "January"  , "january|jan\\.?"    , False )
-  , ( "February" , "february|feb\\.?"   , False )
+  , ( "February" , "feb?ru?ary|feb\\.?"   , False )
   , ( "March"    , "march|mar\\.?"      , False )
   , ( "April"    , "april|apr\\.?"      , False )
   , ( "May"      , "may"                , True  )
   , ( "June"     , "june|jun\\.?"       , False )
   , ( "July"     , "july|jul\\.?"       , False )
-  , ( "August"   , "august|aug\\.?"     , False )
-  , ( "September", "september|sept?\\.?", False )
-  , ( "October"  , "october|oct\\.?"    , False )
-  , ( "November" , "november|nov\\.?"   , False )
-  , ( "December" , "december|dec\\.?"   , False )
+  , ( "August"   , "au?gust|aug\\.?"     , False )
+  , ( "September", "septe?mber|sept?\\.?", False )
+  , ( "October"  , "octo?ber|oct\\.?"    , False )
+  , ( "November" , "nov?e?mber|nov\\.?"   , False )
+  , ( "December" , "dece?mbe?r|dec\\.?"   , False )
   ]
+
 
 rulePartOfMonth :: Rule
 rulePartOfMonth = Rule
@@ -2484,10 +2519,12 @@ rules =
   , ruleDOMOfMonth
   , ruleDOMOrdinalMonthYear
   , ruleDOMMonthYear
+  , ruleDOMMonthYearColons
   , ruleYearMonthDOM
+  , ruleYearMonthDOMColons
   , ruleIdesOfMonth
   , ruleTODLatent
-  , ruleAtTOD
+  --, ruleAtTOD -- (reinfer) at 10/31/2017 12:00AM only matches `at 10`
   , ruleTODOClock
   , rulePODatTOD
   , ruleHHMM
