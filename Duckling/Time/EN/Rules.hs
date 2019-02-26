@@ -460,9 +460,9 @@ ruleYearMonthDOMColons :: Rule
 ruleYearMonthDOMColons = Rule
   { name = "year <named-month> <day-of-month> (non ordinal)"
   , pattern =
-    [ regex "\\b(\\d{4})[:/]"
+    [ regex "\\b(\\d{4})[:/.]"
     , Predicate isAMonth
-    , regex "[:/]"
+    , regex "[:/.]"
     , Predicate isDOMInteger
     ]
   , prod = \tokens -> case tokens of
@@ -494,9 +494,9 @@ ruleDOMMonthYearColons = Rule
   { name = "<day-of-month> (ordinal) <named-month> year"
   , pattern =
     [ Predicate isDOMValue
-    , regex "[:/]"
+    , regex "[:/.]"
     , Predicate isAMonth
-    , regex "[:/](\\d{2,4})"
+    , regex "[:/.](\\d{2,4})"
     ]
   , prod = \tokens -> case tokens of
       (token:_:Token Time td:Token RegexMatch (GroupMatch (match:_)):_) -> do
