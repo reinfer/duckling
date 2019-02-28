@@ -941,7 +941,7 @@ executable duckling-regen-exe
 executable duckling-example-exe
   main-is:             ExampleMain.hs
   hs-source-dirs:      exe
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  ghc-options:         -O3 -threaded -rtsopts -with-rtsopts=-N
   other-modules:       Duckling.Data.TimeZone
   build-depends:       duckling
                      , base
