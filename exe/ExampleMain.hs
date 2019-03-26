@@ -60,6 +60,7 @@ main = do
     route
       [ ("targets", method GET targetsHandler)
       , ("health-private", method GET healthPrivateHandler)
+      , ("version", method GET versionHandler)
       , ("parse", method POST $ parseHandler tzs)
       ]
 
@@ -75,6 +76,23 @@ writeLazyContent lazy = writeContent $ LBS.toStrict lazy
 -- | Health check
 healthPrivateHandler :: Snap ()
 healthPrivateHandler = writeContent "ok\n"
+
+-- | Version check
+-- Dimensions are optional here, they will be given a default value of 0
+versionMap :: HashMap (Some Dimension) Integer
+versionMap = HashMap.fromList
+  [ ( This AmountOfMoney, 0 )
+  , ( This Time, 0 )
+  ]
+
+versionHandler :: Snap ()
+versionHandler = do
+  modifyResponse $ setHeader "Content-Type" "application/json"
+  writeLazyContent $ encode $
+    HashMap.fromList . map dimVersion $ HashMap.toList versionMap
+  where
+    dimVersion :: (Some Dimension, Integer) -> (Text, Integer)
+    dimVersion = (\(This d) -> toName d) *** id
 
 -- | Return which languages have which dimensions
 targetsHandler :: Snap ()
