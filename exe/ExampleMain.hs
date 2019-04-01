@@ -78,11 +78,22 @@ healthPrivateHandler :: Snap ()
 healthPrivateHandler = writeContent "ok\n"
 
 -- | Version check
--- Dimensions are optional here, they will be given a default value of 0
+-- Only final entities are included here
+-- Not versioned: Regex, TimeGrain
 versionMap :: HashMap (Some Dimension) Integer
 versionMap = HashMap.fromList
   [ ( This AmountOfMoney, 0 )
+  , ( This Distance, 0 )
+  , ( This Duration, 0 )
+  , ( This Email, 0 )
+  , ( This Numeral, 0 )
+  , ( This Ordinal, 0 )
+  , ( This PhoneNumber, 0 )
+  , ( This Quantity, 0 )
+  , ( This Temperature, 0 )
   , ( This Time, 0 )
+  , ( This Url, 0 )
+  , ( This Volume, 0 )
   ]
 
 versionHandler :: Snap ()
