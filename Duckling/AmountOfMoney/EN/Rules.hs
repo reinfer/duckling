@@ -409,12 +409,12 @@ rules =
   , ruleIntersectAndNumeral
   , ruleIntersectAndXCents
   , ruleIntersectXCents
-  , ruleIntervalBetweenNumeral
-  , ruleIntervalBetween
-  , ruleIntervalMax
-  , ruleIntervalMin
-  , ruleIntervalNumeralDash
-  , ruleIntervalDash
+  --, ruleIntervalBetweenNumeral
+  --, ruleIntervalBetween
+  --, ruleIntervalMax
+  --, ruleIntervalMin
+  --, ruleIntervalNumeralDash
+  --, ruleIntervalDash
   , ruleOtherPounds
   , rulePounds
   , rulePrecision
