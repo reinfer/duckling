@@ -296,7 +296,7 @@ ruleSuffixes = Rule
   { name = "suffixes (K,M,G))"
   , pattern =
     [ dimension Numeral
-    , regex "(k|m|mln|bar|mio|g|b|bln|bn|t|tln|tn)(?=[\\W$€¢£]|$)"
+    , regex "(k|m|mln|bar|mio|mil|mill|g|b|bln|bn|t|tln|tn)(?=[\\W$€¢£]|$)"
     ]
   , prod = \tokens -> case tokens of
       (Token Numeral nd : Token RegexMatch (GroupMatch (match : _)):_) -> do
@@ -305,6 +305,8 @@ ruleSuffixes = Rule
           "m" -> Just 1e6
           "mln" -> Just 1e6
           "mio" -> Just 1e6
+          "mil" -> Just 1e6
+          "mill" -> Just 1e6
           "bar" -> Just 1e6
           "g" -> Just 1e9
           "b" -> Just 1e9
