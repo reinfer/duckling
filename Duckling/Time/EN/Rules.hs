@@ -46,8 +46,8 @@ ruleIntersect = Rule
     , Predicate $ or . sequence [isNotLatent, isGrainOfTime TG.Year]
     ]
   , prod = \tokens -> case tokens of
-      (Token Time td1:Token Time td2:_) ->
-        Token Time . notLatent <$> intersect td1 td2
+      (Token Time td1:Token Time td2:_) -> if td1 /= td2 then
+        Token Time . notLatent <$> intersect td1 td2 else Nothing
       _ -> Nothing
   }
 
@@ -60,8 +60,8 @@ ruleIntersectOf = Rule
     , Predicate isNotLatent
     ]
   , prod = \tokens -> case tokens of
-      (Token Time td1:_:Token Time td2:_) ->
-        Token Time . notLatent <$> intersect td1 td2
+      (Token Time td1:_:Token Time td2:_) -> if td1 /= td2 then
+        Token Time . notLatent <$> intersect td1 td2 else Nothing
       _ -> Nothing
   }
 
