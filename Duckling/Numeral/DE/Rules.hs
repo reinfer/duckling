@@ -162,16 +162,17 @@ ruleIntersect = Rule
 
 ruleNumeralsSuffixesKMG :: Rule
 ruleNumeralsSuffixesKMG = Rule
-  { name = "numbers suffixes (K, M, G)"
+  { name = "numbers suffixes (K, T, M, G)"
   , pattern =
     [ dimension Numeral
-    , regex "([kmg])(?=[\\W\\$€]|$)"
+    , regex "([kmgt])(?=[\\W\\$€]|$)"
     ]
   , prod = \tokens -> case tokens of
       (Token Numeral NumeralData{TNumeral.value = v}:
        Token RegexMatch (GroupMatch (match:_)):
        _) -> case Text.toLower match of
          "k" -> double $ v * 1e3
+         "t" -> double $ v * 1e3
          "m" -> double $ v * 1e6
          "g" -> double $ v * 1e9
          _ -> Nothing
@@ -200,7 +201,7 @@ rulePowersOfTen :: Rule
 rulePowersOfTen = Rule
   { name = "powers of tens"
   , pattern =
-    [ regex "(hunderte?|tausende?|million(en)?)"
+    [ regex "(hunderte?|tausende?|mi(o|llion(en)?))"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (match:_)):_) -> case Text.toLower match of
@@ -208,6 +209,7 @@ rulePowersOfTen = Rule
         "hunderte"  -> double 1e2 >>= withGrain 2 >>= withMultipliable
         "tausend"   -> double 1e3 >>= withGrain 3 >>= withMultipliable
         "tausende"  -> double 1e3 >>= withGrain 3 >>= withMultipliable
+        "mio"       -> double 1e6 >>= withGrain 6 >>= withMultipliable
         "million"   -> double 1e6 >>= withGrain 6 >>= withMultipliable
         "millionen" -> double 1e6 >>= withGrain 6 >>= withMultipliable
         _           -> Nothing

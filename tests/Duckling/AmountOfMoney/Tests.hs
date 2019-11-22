@@ -16,6 +16,7 @@ import Test.Tasty
 import qualified Duckling.AmountOfMoney.AR.Tests as AR
 import qualified Duckling.AmountOfMoney.EN.Tests as EN
 import qualified Duckling.AmountOfMoney.BG.Tests as BG
+import qualified Duckling.AmountOfMoney.DE.Tests as DE
 import qualified Duckling.AmountOfMoney.ES.Tests as ES
 import qualified Duckling.AmountOfMoney.FR.Tests as FR
 import qualified Duckling.AmountOfMoney.GA.Tests as GA
@@ -40,6 +41,7 @@ tests = testGroup "AmountOfMoney Tests"
   [ AR.tests
   , EN.tests
   , BG.tests
+  , DE.tests
   , ES.tests
   , FR.tests
   , GA.tests

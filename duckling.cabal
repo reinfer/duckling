@@ -205,6 +205,8 @@ library
                      , Duckling.AmountOfMoney.AR.Rules
                      , Duckling.AmountOfMoney.BG.Corpus
                      , Duckling.AmountOfMoney.BG.Rules
+                     , Duckling.AmountOfMoney.DE.Corpus
+                     , Duckling.AmountOfMoney.DE.Rules
                      , Duckling.AmountOfMoney.EN.AU.Corpus
                      , Duckling.AmountOfMoney.EN.AU.Rules
                      , Duckling.AmountOfMoney.EN.BZ.Corpus
@@ -840,6 +842,7 @@ test-suite duckling-test
                      , Duckling.AmountOfMoney.AR.Tests
                      , Duckling.AmountOfMoney.EN.Tests
                      , Duckling.AmountOfMoney.BG.Tests
+                     , Duckling.AmountOfMoney.DE.Tests
                      , Duckling.AmountOfMoney.ES.Tests
                      , Duckling.AmountOfMoney.FR.Tests
                      , Duckling.AmountOfMoney.GA.Tests
