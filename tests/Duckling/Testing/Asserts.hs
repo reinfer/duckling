@@ -84,8 +84,8 @@ makeCorpusTest targets (context, options, xs) = testCase "Corpus Tests" $
           [] -> assertFailure $ "empty result on " ++ show input
           (_:_:_) -> assertFailure $
             show (length restTokens) ++ " tokens found for " ++ show input
-          _ -> assertFailure $ "don't fully match " ++ show input
-        [token] -> assertBool ("don't pass predicate on " ++ show input) $
+          _ -> assertFailure $ "don't fully match " ++ show input ++ show tokens
+        [token] -> assertBool ("don't pass predicate on " ++ show input ++ show tokens) $
           predicate context token
         _ -> assertFailure $ show (length fullRangeTokens)
           ++ " different ambiguous parses on " ++ show input

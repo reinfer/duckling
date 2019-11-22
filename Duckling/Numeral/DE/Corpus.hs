@@ -94,6 +94,8 @@ allExamples = concat
              , "100000"
              , "100K"
              , "100k"
+             , "100T"
+             , "100t"
              ]
   , examples (NumeralValue 3000000)
              [ "3M"
@@ -123,6 +125,9 @@ allExamples = concat
              ]
   , examples (NumeralValue 200000)
              [ "zwei hundert tausend"
+             , "200 tausend"
+             , "0,2 Millionen"
+             , "0,2 mio"
              ]
   , examples (NumeralValue 721012)
              [ "sieben hundert einundzwanzig tausend zwölf"
