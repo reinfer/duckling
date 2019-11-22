@@ -39,7 +39,6 @@ allExamples = concat
              [ "10 cent"
              , "tien pennies"
              , "tien cents"
-             , "10 c"
              , "10¢"
              ]
   , examples (simple Dollar 10000)
@@ -64,9 +63,8 @@ allExamples = concat
              , "20 €ur"
              ]
   , examples (simple Dollar 20.43)
-             [ "$20 en 43c"
+             [ "$20 en 43 cents"
              , "$20,43"
-             , "20 dollar 43c"
              , "20 dollars 43 cents"
              , "20 dollar 43"
              ]

@@ -132,11 +132,6 @@ exactSecondTests = testCase "Exact Second Tests" $
       , examples (datetime (2016, 12, 6, 13, 31, 42) Second)
                  [ "in ten minutes"
                  ]
-      , examples (datetimeInterval
-          ((2016, 12, 6, 13, 21, 42), (2016, 12, 12, 0, 0, 0)) Second)
-                 [ "by next week"
-                 , "by Monday"
-                 ]
       ]
 
 valuesTest :: TestTree
@@ -166,8 +161,7 @@ rangeTests :: TestTree
 rangeTests = testCase "Range Test" $
   mapM_ (analyzedRangeTest testContext testOptions . withTargets [This Time]) xs
   where
-    xs = [ ("at 615.", Range 0 6) -- make sure ruleHHMMLatent allows this
-         , ("last in 2'", Range 5 10) -- ruleLastTime too eager
+    xs = [ ("last in 2'", Range 5 10) -- ruleLastTime too eager
          , ("this in 2'", Range 5 10) -- ruleThisTime too eager
          , ("next in 2'", Range 5 10) -- ruleNextTime too eager
          , ("this this week", Range 5 14) -- ruleThisTime too eager
@@ -176,8 +170,4 @@ rangeTests = testCase "Range Test" $
          , ("table Wednesday for 30 people", Range 6 15)
            -- do not parse "for 30" as year intersect
          , ("house 1 on december 2013", Range 11 24) -- ruleAbsorbOnDay
-         , ("at 6pm GMT PDT", Range 0 10) -- ruleTimezone
-         , ("at 6pm (PDT) GMT", Range 0 12) -- ruleTimezoneBracket
-         , ("6pm GMT - 8pm GMT PDT", Range 0 17)
-           -- ruleTimezone will not match because TimeData hasTimezone.
          ]

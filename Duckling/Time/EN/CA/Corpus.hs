@@ -35,7 +35,7 @@ allExamples = concat
              , "10 31 1974"
              ]
   , examples (datetime (2013, 4, 25, 16, 0, 0) Minute)
-             [ "4/25 at 4:00pm"
+             [ "4/25 4:00pm"
              ]
   , examples (datetimeHoliday (2013, 10, 14, 0, 0, 0) Day "Thanksgiving Day")
              [ "thanksgiving day"

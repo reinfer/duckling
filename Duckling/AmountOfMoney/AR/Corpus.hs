@@ -43,7 +43,6 @@ allExamples = concat
              , "10 سنت"
              , "10 سينت"
              , "10 سينتات"
-             , "10 c"
              , "10¢"
              ]
   , examples (simple Dollar 1e4)
@@ -63,10 +62,7 @@ allExamples = concat
              , "10 جنيهات"
              ]
   , examples (simple Dollar 20.43)
-             [ "20$ و 43c"
-             , "$20 43"
-             , "20$ 43c"
-             , "20 دولار و43 سنت"
+             [ "20 دولار و43 سنت"
              , "20.43 $"
              ]
   , examples (simple GBP 3)

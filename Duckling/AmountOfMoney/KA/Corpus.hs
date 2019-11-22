@@ -39,7 +39,6 @@ allExamples = concat
   , examples (simple Cent 10)
              [ "10 ცენტი"
              , "ათი ცენტი"
-             , "10 c"
              , "10¢"
              ]
   , examples (simple Dollar 1e4)
@@ -65,9 +64,7 @@ allExamples = concat
              , "ათი ფუნტი"
              ]
   , examples (simple Dollar 20.43)
-             [ "$20 და 43c"
-             , "20 დოლარი და 43c"
-             , "20 დოლარი 43 ცენტი"
+             [ "20 დოლარი 43 ცენტი"
              , "ოცი დოლარი 43 ცენტი"
              , "ოცი დოლარი და ორმოცდასამი ცენტი"
              ]

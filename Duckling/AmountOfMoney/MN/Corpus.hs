@@ -55,7 +55,6 @@ allExamples = concat
              [ "10 цент"
              , "арван пени"
              , "арван цент"
-             , "10 c"
              , "10¢"
              ]
   , examples (simple EUR 20)

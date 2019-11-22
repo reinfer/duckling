@@ -448,9 +448,6 @@ yearADBC :: Int -> TimeData
 yearADBC n =
   TTime.timedata'{TTime.timePred = timeYear n, TTime.timeGrain = TG.Year}
 
-yearMonth :: Int -> Int -> TimeData
-yearMonth y m = intersect' (year y, month m)
-
 yearMonthDay :: Int -> Int -> Int -> TimeData
 yearMonthDay y m d = intersect' (yearMonth y m, dayOfMonth d)
 
