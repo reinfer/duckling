@@ -25,6 +25,7 @@ import GHC.Generics
 import Prelude
 import System.Directory
 import System.Environment (lookupEnv)
+import System.Timeout (timeout)
 import TextShow
 import Text.Read (readMaybe)
 import qualified Data.ByteString.Lazy as LBS
@@ -40,6 +41,12 @@ import Snap.Http.Server
 import Duckling.Core
 import Duckling.Data.TimeZone
 import Duckling.Resolve (DucklingTime)
+
+microsPerSecond :: Int
+microsPerSecond = 1000000
+
+documentTimeoutMicros :: Int
+documentTimeoutMicros = 10 * microsPerSecond
 
 createIfMissing :: FilePath -> IO ()
 createIfMissing f = do
@@ -130,11 +137,32 @@ parseHandler tzs = do
         options = Options {withLatent = fromMaybe False (Main.latent request)}
         parseDimensionList = mapMaybe fromName (parseDimensions request)
         filterDimensionSet = HashSet.fromList (filterDimensions request)
+        configuredParse = parseDocument options thisLocale tzs parseDimensionList filterDimensionSet
+        documents = (zip (zip (timezones request) (referenceTimes request)) (texts request))
 
-        parsedResult = map
-          (parseDocument options thisLocale tzs parseDimensionList filterDimensionSet)
-          (zip (zip (timezones request) (referenceTimes request)) (texts request))
+        emptyEntitiesOnTimeout :: ((Text, Integer), Text) -> Maybe [Entity] -> Snap [Entity]
+        emptyEntitiesOnTimeout (_, text) Nothing = do
+          logError
+            $ Text.encodeUtf8
+            $ Text.concat [
+              "Timed out when parsing entities in document: "
+              , Text.pack (show text)
+              , "."
+            ]
+          return []
+        emptyEntitiesOnTimeout _ (Just entities) = return entities
 
+        configuredParseWithTimeout document = do
+          entities <- liftIO
+            $ timeout documentTimeoutMicros
+            $ return
+            $! configuredParse document
+          emptyEntitiesOnTimeout document entities
+
+
+      _ <- setTimeout
+        $ (documentTimeoutMicros * (length documents)) `quot` microsPerSecond
+      parsedResult <- sequence $ map configuredParseWithTimeout documents
       writeLazyContent $ encode parsedResult
   where
     defaultLang = EN
