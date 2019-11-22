@@ -68,13 +68,9 @@ rankFilterTest = testCase "Rank Filter Tests" $ do
       , [This Numeral, This Temperature, This Time]
       , [This Time, This Temperature]
       )
-    , ( "today works... and tomorrow at 9pm too"
+    , ( "today works... and tomorrow 9pm too"
       , [This Numeral, This Time]
       , [This Time, This Time]
-      )
-    , ( "between 9:30 and 11:00 on thursday or Saturday and Thanksgiving Day"
-      , [This Numeral, This Time]
-      , [This Time, This Time, This Time]
       )
     , ("the day after tomorrow 5pm", [This Time], [This Time])
     , ("the day after tomorrow 5pm", [This Time, This Numeral], [This Time])

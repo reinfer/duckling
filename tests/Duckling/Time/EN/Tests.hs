@@ -132,11 +132,6 @@ exactSecondTests = testCase "Exact Second Tests" $
       , examples (datetime (2016, 12, 6, 13, 31, 42) Second)
                  [ "in ten minutes"
                  ]
-      , examples (datetimeInterval
-          ((2016, 12, 6, 13, 21, 42), (2016, 12, 12, 0, 0, 0)) Second)
-                 [ "by next week"
-                 , "by Monday"
-                 ]
       ]
 
 valuesTest :: TestTree
@@ -167,8 +162,7 @@ rangeTests :: TestTree
 rangeTests = testCase "Range Test" $
   mapM_ (analyzedRangeTest testContext testOptions . withTargets [This Time]) xs
   where
-    xs = [ ("at 615.", Range 0 6) -- make sure ruleHHMMLatent allows this
-         , ("last in 2'", Range 5 10) -- ruleLastTime too eager
+    xs = [ ("last in 2'", Range 5 10) -- ruleLastTime too eager
          , ("this in 2'", Range 5 10) -- ruleThisTime too eager
          , ("next in 2'", Range 5 10) -- ruleNextTime too eager
          , ("this this week", Range 5 14) -- ruleThisTime too eager

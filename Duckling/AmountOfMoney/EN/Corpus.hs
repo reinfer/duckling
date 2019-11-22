@@ -34,7 +34,6 @@ allExamples = concat
   [ examples (simple Dollar 1)
              [ "$1"
              , "one dollar"
-             , "a dollar"
              ]
   , examples (simple Dollar 10)
              [ "$10"
@@ -47,7 +46,6 @@ allExamples = concat
              [ "10 cent"
              , "ten pennies"
              , "ten cents"
-             , "10 c"
              , "10¢"
              ]
   , examples (simple Dollar 1e4)
@@ -82,17 +80,12 @@ allExamples = concat
              , "Rs20"
              ]
   , examples (simple INR 20.43)
-             [ "20 Rupees 43"
-             , "twenty rupees 43"
+             [ "twenty rupees 43 cents"
              ]
   , examples (simple Dollar 20.43)
-             [ "$20 and 43c"
-             , "$20 43"
-             , "20 dollar 43c"
+             [ "20 dollar 43 cents"
              , "20 dollars 43 cents"
              , "twenty dollar 43 cents"
-             , "20 dollar 43"
-             , "twenty dollar and 43"
              ]
   , examples (simple GBP 3.01)
              [ "GBP3.01"
@@ -148,11 +141,8 @@ allExamples = concat
              , "malaysian ringgits 42"
              ]
   , examples (simple MYR 20.43)
-             [ "20 ringgit and 43c"
-             , "20 ringgit and 43 sen"
+             [ "20 ringgit and 43 sen"
              , "twenty ringgit 43 sens"
-             , "20 ringgit 43"
-             , "twenty ringgit and 43"
              ]
   , examples (simple Dinar 10)
              [ "10 dinars"
@@ -168,29 +158,5 @@ allExamples = concat
   , examples (simple Rial 10)
              [ "ten rials"
              , "10 rials"
-             ]
-  , examples (between Dollar (10, 20))
-             [ "between 10 and 20 dollars"
-             , "from 10 dollars to 20 dollars"
-             , "around 10-20 dollars"
-             , "between 10 dollars and 20 dollars"
-             , "from 10 to 20 dollars"
-             , "about $10-$20"
-             , "10-20 dollars"
-             ]
-  , examples (between Dollar (1.1, 1.3))
-             [ "between 1.1 and 1.3 dollars"
-             , "from 1 point 1 and one point three dollars"
-             ]
-  , examples (under EUR 7)
-             [ "under seven euros"
-             , "less than 7 EUR"
-             , "lower than 7€"
-             ]
-  , examples (above Dollar 1.42)
-             [ "more than 1 dollar and forty-two cents"
-             , "at least $1.42"
-             , "over 1.42 dollars"
-             , "above a dollar and 42 cents"
              ]
   ]

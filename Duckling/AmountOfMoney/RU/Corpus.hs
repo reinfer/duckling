@@ -56,7 +56,6 @@ allExamples = concat
              [ "10 центов"
              , "десять пени"
              , "десять центов"
-             , "10 c"
              , "10¢"
              ]
   , examples (simple Dollar 1e4)
