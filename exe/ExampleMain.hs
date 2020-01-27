@@ -46,7 +46,7 @@ microsPerSecond :: Int
 microsPerSecond = 1000000
 
 documentTimeoutMicros :: Int
-documentTimeoutMicros = microsPerSecond `div` 5
+documentTimeoutMicros = 5 * microsPerSecond
 
 createIfMissing :: FilePath -> IO ()
 createIfMissing f = do
