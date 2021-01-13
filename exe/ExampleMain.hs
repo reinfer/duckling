@@ -14,6 +14,7 @@ import Control.Arrow ((***))
 import Control.Monad (unless)
 import Control.Monad.IO.Class
 import Data.Aeson
+import Data.Int (Int64)
 import Data.ByteString (ByteString, empty)
 import qualified Data.ByteString as BS
 import Data.HashMap.Strict (HashMap)
@@ -26,6 +27,7 @@ import GHC.Generics
 import Prelude
 import System.Directory
 import System.Timeout (timeout)
+import System.Environment (lookupEnv)
 import TextShow
 import Text.Read (readMaybe)
 import qualified Data.ByteString.Lazy as LBS
@@ -34,7 +36,7 @@ import qualified Data.HashSet as HashSet
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 
-import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
+import Data.Time.Clock.POSIX (posixSecondsToUTCTime, getPOSIXTime)
 import Snap.Core
 import Snap.Http.Server
 
@@ -42,11 +44,11 @@ import Duckling.Core
 import Duckling.Data.TimeZone
 import Duckling.Resolve (DucklingTime)
 
-microsPerSecond :: Int
-microsPerSecond = 1000000
+defaultDocumentTimeoutMillis :: Int64
+defaultDocumentTimeoutMillis = 1500
 
-documentTimeoutMicros :: Int
-documentTimeoutMicros = 5 * microsPerSecond
+defaultRequestTimeoutMillis :: Int64
+defaultRequestTimeoutMillis = 45000
 
 createIfMissing :: FilePath -> IO ()
 createIfMissing f = do
@@ -59,15 +61,26 @@ setupLogs = do
   createIfMissing "log/error.log"
   createIfMissing "log/access.log"
 
+parseIntEnv:: Int64 -> Maybe String -> Int64
+parseIntEnv defaultValue Nothing = defaultValue
+parseIntEnv defaultValue (Just "") = defaultValue
+parseIntEnv _ (Just stringValue) = (read stringValue)
+
 main :: IO ()
 main = do
   setupLogs
   tzs <- loadTimeZoneSeries "/usr/share/zoneinfo/"
+  documentTimeoutMillis <-
+    parseIntEnv defaultDocumentTimeoutMillis
+      <$> lookupEnv "REINFER_DUCKLING_DOCUMENT_TIMEOUT_MS"
+  envRequestTimeoutMillis <-
+    parseIntEnv defaultRequestTimeoutMillis
+      <$> lookupEnv "REINFER_DUCKLING_REQUEST_TIMEOUT_MS"
   quickHttpServe $
     route
       [ ("targets", method GET targetsHandler)
       , ("health-private", method GET healthPrivateHandler)
-      , ("parse", method POST $ parseHandler tzs)
+      , ("parse", method POST $ parseHandler tzs envRequestTimeoutMillis documentTimeoutMillis)
       ]
 
 -- | Write with context length.
@@ -78,6 +91,12 @@ writeContent byteString = do
 
 writeLazyContent :: LBS.ByteString -> Snap ()
 writeLazyContent lazy = writeContent $ LBS.toStrict lazy
+
+writeComputationDeadlineExceeded :: Snap ()
+writeComputationDeadlineExceeded = do
+    modifyResponse $ setResponseStatus 422 "Unprocessable Entity"
+    writeContent "{\"status\": \"error\", \"message\": \"Computation deadline exceeded.\"}"
+
 
 -- | Health check
 healthPrivateHandler :: Snap ()
@@ -107,11 +126,11 @@ parseDocument options thisLocale tzs parseDimensionList filterDimensionSet ((tim
       , Duckling.Core.locale = thisLocale
       }
     refTime = makeReftime tzs timezone $ posixSecondsToUTCTime $ fromInteger rawIntRef / 1000
-
     keepEntity entity = HashSet.member (dim entity) filterDimensionSet
 
 data ParseRequest = ParseRequest {
       texts :: [Text]
+    , requestTimeoutMillis :: Maybe Int64
     , referenceTimes :: [Integer]
     , language :: Maybe Text
     , parseDimensions  :: [Text]
@@ -123,8 +142,11 @@ data ParseRequest = ParseRequest {
 
 instance FromJSON ParseRequest
 
-parseHandler :: TimezoneHashMap -> Snap ()
-parseHandler tzs = do
+getCurrentMillis :: Snap Int64
+getCurrentMillis = liftIO $ (round . (1000*) <$> getPOSIXTime)
+
+parseHandler :: TimezoneHashMap -> Int64 -> Int64 -> Snap ()
+parseHandler tzs envRequestTimeoutMillis documentTimeoutMillis = do
   modifyResponse $ setHeader "Content-Type" "application/json"
   body <- readRequestBody (8 * 1024 * 1024)
   case (decode body) of
@@ -132,6 +154,9 @@ parseHandler tzs = do
       modifyResponse $ setResponseStatus 400 "Bad Request"
       writeContent "{\"status\": \"error\", \"message\": \"Bad Request.\"}"
     (Just request) -> do
+      deadlineMillis <-
+        (+ (fromMaybe envRequestTimeoutMillis (requestTimeoutMillis request)))
+        <$> getCurrentMillis
       let
         thisLocale = maybe (makeLocale (parseLang $ language request) Nothing) parseLocale (Main.locale request)
         options = Options {withLatent = fromMaybe False (Main.latent request)}
@@ -152,18 +177,24 @@ parseHandler tzs = do
           return []
         emptyEntitiesOnTimeout _ (Just entities) = return entities
 
+        parseWithTimeout timeoutMillis document
+          | timeoutMillis <= 0 = return []
+          | otherwise          = do
+              entities <- liftIO
+                $ timeout (timeoutMillis * 1000)
+                $ return
+                $! configuredParse document
+              emptyEntitiesOnTimeout document entities
+
         configuredParseWithTimeout document = do
-          entities <- liftIO
-            $ timeout documentTimeoutMicros
-            $ return
-            $! configuredParse document
-          emptyEntitiesOnTimeout document entities
+          timeoutMillis <- (min documentTimeoutMillis) . (deadlineMillis-) <$> getCurrentMillis
+          parseWithTimeout (fromIntegral timeoutMillis) document
 
-
-      _ <- setTimeout
-        $ (documentTimeoutMicros * (length documents)) `quot` microsPerSecond
       parsedResult <- sequence $ map configuredParseWithTimeout documents
-      writeLazyContent $ encode parsedResult
+      remainingRequestTime <- (deadlineMillis-) <$> getCurrentMillis
+      if remainingRequestTime <= 0
+        then writeComputationDeadlineExceeded
+        else writeLazyContent $ encode parsedResult
   where
     defaultLang = EN
     defaultLocale = makeLocale defaultLang Nothing
