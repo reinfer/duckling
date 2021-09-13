@@ -1705,8 +1705,8 @@ rulePeriodicHolidays = mkRuleHolidays
   , ( "World Sight Day", "world sight day", nthDOWOfMonth 2 4 10 )
 
   -- Other
-  , ( "Boss's Day", "boss'?s?( day)?"
-    , predNthClosest 0 weekday (monthDay 10 16) )
+  --, ( "Boss's Day", "boss'?s?( day)?"
+  --  , predNthClosest 0 weekday (monthDay 10 16) ) -- (reinfer) false positives
   ]
 
 ruleComputedHolidays :: [Rule]
@@ -2352,7 +2352,7 @@ rules =
   , ruleHHMM
   , ruleHHMMLatent
   , ruleHHMMSS
-  , ruleMilitaryAMPM
+  --, ruleMilitaryAMPM -- (reinfer) matches things like 000 a
   , ruleMilitarySpelledOutAMPM
   , ruleMilitarySpelledOutAMPM2
   , ruleTODAMPM
