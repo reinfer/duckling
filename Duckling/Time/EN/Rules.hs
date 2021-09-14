@@ -2353,8 +2353,8 @@ rules =
   , ruleHHMMLatent
   , ruleHHMMSS
   --, ruleMilitaryAMPM -- (reinfer) matches things like 000 a
-  , ruleMilitarySpelledOutAMPM
-  , ruleMilitarySpelledOutAMPM2
+  --, ruleMilitarySpelledOutAMPM -- (reinfer) matches things like 000 a
+  --, ruleMilitarySpelledOutAMPM2 -- (reinfer) matches things like 000 a
   , ruleTODAMPM
   , ruleHONumeral
   , ruleHODHalf

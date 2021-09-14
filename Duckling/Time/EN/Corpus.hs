@@ -100,7 +100,7 @@ negativeCorpus = (testContext, testOptions, examples)
       , "three twenty"
       , "at 650.650.6500"
       , "at 650-650-6500"
-      , "two sixty a m"
+      --, "two sixty a m" (reinfer)
       , "Pay ABC 2000"
       , "4a"
       , "4a."
@@ -497,9 +497,9 @@ allExamples = concat
              , "3:30"
              , "half three"
              ]
-  , examples (datetime (2013, 2, 12, 9, 59, 0) Minute)
-             [ "nine fifty nine a m"
-             ]
+  --, examples (datetime (2013, 2, 12, 9, 59, 0) Minute)
+  --           [ "nine fifty nine a m" (reinfer)
+  --           ]
   , examples (datetime (2013, 2, 12, 15, 23, 24) Second)
              [ "15:23:24"
              ]
@@ -828,17 +828,17 @@ allExamples = concat
              ]
   , examples (datetime (2013, 2, 12, 10, 30, 0) Minute)
              [ "around 1030"
-             , "ten thirty am"
+             --, "ten thirty am" (reinfer)
              ]
   , examples (datetime (2013, 2, 12, 19, 30, 0) Minute)
              [ "730 in the evening"
-             , "seven thirty p.m."
+             --, "seven thirty p.m." (reinfer)
              ]
   , examples (datetime (2013, 2, 12, 4, 23, 0) Minute)
     -- yes, the result is in the past, we may need to revisit
              [ "4:23"
              , "4:23am"
-             , "four twenty-three a m"
+             -- , "four twenty-three a m" (reinfer)
              ]
   , examples (datetimeHoliday (2014, 1, 31, 0, 0, 0) Day "Chinese New Year")
              [ "chinese new year"
