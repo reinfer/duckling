@@ -894,6 +894,22 @@ ruleYYYYMMDD = Rule
       _ -> Nothing
   }
 
+ruleYYYYMMDDSlash :: Rule
+ruleYYYYMMDDSlash = Rule
+  { name = "yyyy/mm/dd"
+  , pattern =
+    [ regex "(\\d{2,4})/(0?[1-9]|1[0-2])/(3[01]|[12]\\d|0?[1-9])"
+    ]
+  , prod = \tokens -> case tokens of
+      (Token RegexMatch (GroupMatch (yy:mm:dd:_)):_) -> do
+        y <- parseInt yy
+        m <- parseInt mm
+        d <- parseInt dd
+        tt $ yearMonthDay y m d
+      _ -> Nothing
+  }
+
+
 ruleNoonMidnightEOD :: Rule
 ruleNoonMidnightEOD = Rule
   { name = "noon|midnight|EOD|end of day"
@@ -2367,6 +2383,7 @@ rules =
   , ruleQuarterAfterHOD
   , ruleHalfHOD
   , ruleYYYYMMDD
+  , ruleYYYYMMDDSlash
   , ruleMMYYYY
   , ruleNoonMidnightEOD
   , rulePartOfDays
