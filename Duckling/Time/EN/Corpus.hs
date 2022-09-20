@@ -224,6 +224,7 @@ allExamples = concat
              , "3/3/15"
              , "2015-3-3"
              , "2015-03-03"
+             , "2015/03/03"
              ]
   , examples (datetime (2013, 2, 15, 0, 0, 0) Day)
              [ "on the 15th"
