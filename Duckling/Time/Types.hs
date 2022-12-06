@@ -88,9 +88,10 @@ instance Ord TimeData where
       z -> z
 
 instance Show TimeData where
-  show (TimeData _ latent grain _ form dir _ holiday) =
+  show (TimeData predicate latent grain _ form dir _ holiday) =
     "TimeData{" ++
-    "latent=" ++ show latent ++
+    "predicate=" ++ show predicate ++
+    ", latent=" ++ show latent ++
     ", grain=" ++ show grain ++
     ", form=" ++ show form ++
     ", direction=" ++ show dir ++
@@ -326,6 +327,7 @@ mkIntersectPredicate
         unify g1 g2 <*>
         unify h1 h2)
   where
+  unify :: Eq a => Maybe a -> Maybe a -> Maybe (Maybe a)
   unify Nothing a = Just a
   unify a Nothing = Just a
   unify ma@(Just a) (Just b)

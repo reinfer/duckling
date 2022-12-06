@@ -46,10 +46,31 @@ ruleIntersect = Rule
     , Predicate $ or . sequence [isNotLatent, isGrainOfTime TG.Year]
     ]
   , prod = \tokens -> case tokens of
-      (Token Time td1:Token Time td2:_) -> if td1 /= td2 then
+      (Token Time td1:Token Time td2:_) -> if (isValidIntersection td1 td2) then
         Token Time . notLatent <$> intersect td1 td2 else Nothing
       _ -> Nothing
   }
+
+-- Fixing issue around 10-July-2022 11-July-2022 getting badly extracted into July-2022 11-July-2022
+isValidIntersection :: TimeData -> TimeData -> Bool
+isValidIntersection td1 td2 
+  | td1 == td2 = False
+  | otherwise = case (timePred td1, timePred td2) of 
+    ((TTime.TimeDatePredicate a1 b1 c1 d1 e1 f1 g1 h1), (TTime.TimeDatePredicate a2 b2 c2 d2 e2 f2 g2 h2)) -> 
+        compare a1 a2 &&
+        compare b1 b2 &&
+        compare c1 c2 &&
+        compare d1 d2 &&
+        compare e1 e2 &&
+        compare f1 f2 &&
+        compare g1 g2 &&
+        compare h1 h2
+    _ -> True
+  where 
+  compare :: Maybe a -> Maybe a -> Bool
+  compare (Just a) (Just b) = False
+  compare _ _ = True
+    
 
 ruleIntersectOf :: Rule
 ruleIntersectOf = Rule

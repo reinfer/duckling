@@ -156,6 +156,7 @@ intersectTests = testCase "Intersect Test" $
     xs = [ ("tomorrow July", 2)
          , ("Mar tonight", 2)
          , ("Feb tomorrow", 1) -- we are in February
+         , ("Jul-2022 13-Jul-2022", 2)
          ]
 
 rangeTests :: TestTree
