@@ -168,12 +168,7 @@ parseHandler tzs envRequestTimeoutMillis documentTimeoutMillis = do
         emptyEntitiesOnTimeout :: ((Text, Integer), Text) -> Maybe [Entity] -> Snap [Entity]
         emptyEntitiesOnTimeout (_, text) Nothing = do
           logError
-            $ Text.encodeUtf8
-            $ Text.concat [
-              "Timed out when parsing entities in document: "
-              , Text.pack (show text)
-              , "."
-            ]
+            $ Text.encodeUtf8 "Timed out when parsing entities in document"
           return []
         emptyEntitiesOnTimeout _ (Just entities) = return entities
 
