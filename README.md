@@ -9,8 +9,13 @@ Duckling is a Haskell library that parses text into structured data.
 ```
 
 ## Requirements
+
+### Haskell
+
 A Haskell environment is required. We recommend using
 [stack](https://haskell-lang.org/get-started).
+
+### PCRE
 
 On macOS you'll need to install PCRE development headers.
 The easiest way to do that is with [Homebrew](https://brew.sh/):
@@ -19,6 +24,21 @@ brew install pcre
 ```
 If that doesn't help, try running `brew doctor` and fix
 the issues it finds.
+
+### Timezone data (tzdata)
+
+duckling requires timezone data to handle date parsing.
+This works with the system data `tzdata` built for Ubuntu 20.04.
+
+A copy of known working tzdata is included in this repository in the `./data` directory.
+It is known that this version of `duckling` does not work with newer versions of `tzdata` in Ubuntu 22.04+
+
+This data was captured from a known working duckling build like so:
+
+```bash
+# Outputs .deb file in ./data directory
+docker run --rm -it -v "$(pwd)/data:/mnt/data" ubuntu:20.04 /bin/bash -c 'apt-get update && apt-get download tzdata && mv /tzdata* /mnt/data'
+```
 
 ## Quickstart
 To compile and run the binary:
